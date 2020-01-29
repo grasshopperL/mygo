@@ -31,6 +31,9 @@ type Third struct {
 
 func init()  {
 	orm.RegisterModelWithPrefix("", new(Third))
+	orm.RunSyncdb("default", true, true)
+	orm.RunSyncdb("write", true, true)
+	orm.RunSyncdb("read", true, true)
 }
 
 // add one third company
@@ -48,14 +51,10 @@ func AddThirds(thirds []Third) (int64, error) {
 }
 
 // del one third company
-func DelThird(id int) (bool, error)  {
+func DelThird(id int) (int64, error)  {
 	o := orm.NewOrm()
-	_ = o.Using("read")
-	_, err := o.Delete(&Third{Id: id})
-	if err != nil {
-		return false, err
-	}
-	return true, nil
+	_ = o.Using("write")
+	return o.Delete(&Third{Id: id})
 }
 
 // get one company's info by id
@@ -66,6 +65,7 @@ func GetCompanyInfoById(id string) (third Third, err error) {
 		Where("id = ?")
 	sql := qb.String()
 	o := orm.NewOrm()
+	_ = o.Using("read")
 	err = o.Raw(sql, id).QueryRow(&third)
 	return
 }
@@ -75,15 +75,15 @@ func GetCompanyList(params map[string]interface{}) ([]Third, int, error) {
 	var resultList []Third
 	sql := "select * from third where 1=1"
 	sqlCount := "select count(*) as count from third where 1=1"
-	if params["node"] != "" && params["node"].(string) != "" {
+	if params["node"] != nil && params["node"].(string) != "" {
 		sql += "and node = '" + params["node"].(string) + "'"
 		sqlCount += "and node = '" + params["node"].(string) + "'"
 	}
-	if params["isp"] != "" && params["isp"].(string) != "" {
+	if params["isp"] != nil && params["isp"].(string) != "" {
 		sql += "and isp = '" + params["isp"].(string) + "'"
 		sqlCount += "and isp = '" + params["isp"].(string) + "'"
 	}
-	if params["company"] != "" && params["company"].(string) != "" {
+	if params["company"] != nil && params["company"].(string) != "" {
 		sql += "and company = '%" + params["company"].(string) + "%' "
 		sqlCount += "and company = '%" + params["company"].(string) + "%'"
 	}
@@ -108,9 +108,19 @@ func GetCompanyList(params map[string]interface{}) ([]Third, int, error) {
 		by = params["by"].(string)
 	}
 	sql += " order by " + order + " " + by
+	if params["limit"] != nil && params["limit"].(int) > 0 {
+		sql += " limit " + strconv.Itoa(params["offset"].(int)) + "," + strconv.Itoa(params["limit"].(int)) + ""
+	}
 	_, err = o.Raw(sql).QueryRows(&resultList)
 	if err != nil {
 		return resultList, count, err
 	}
 	return resultList, count, nil
+}
+
+// edit a company by id
+func EditThird(third *Third) (int64, error)  {
+	o := orm.NewOrm()
+	_ = o.Using("write")
+	return o.Update(third)
 }

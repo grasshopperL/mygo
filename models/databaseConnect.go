@@ -22,4 +22,6 @@ func init()  {
 	dataSource := dbuser + ":" + dbpass + "@tcp(" + dbhost + ":" + dbport + ")/" + dbname + "?charset=utf8"
 	_ = orm.RegisterDriver("mysql", orm.DRMySQL)
 	_ = orm.RegisterDataBase("read", "mysql", dataSource, 30)
+	_ = orm.RegisterDataBase("write", "mysql", dataSource, 30)
+	_ = orm.RegisterDataBase("default", "mysql", dataSource, 30)
 }

@@ -1,6 +1,8 @@
 package test
 
 import (
+	"fmt"
+	"mygo/models"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -36,7 +38,24 @@ func TestGet(t *testing.T) {
 	})
 }
 
-func TestDatabaseConnect(t *testing.T) {
-
+func TestAddThird(t *testing.T) {
+	third := models.Third{
+		Id:       0,
+		Node:     "",
+		Company:  "",
+		Isp:      "",
+		Price:    0,
+		Ctype:    "",
+		Cratio:   0,
+		Tapetype: 0,
+		Project:  "",
+		Cname:    "",
+		Ns:       "",
+		Status:   0,
+		Username: "",
+		Tim:      "",
+	}
+	num, err := models.AddThird(&third)
+	fmt.Print(num, err)
 }
 
