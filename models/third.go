@@ -31,9 +31,9 @@ type Third struct {
 
 func init()  {
 	orm.RegisterModelWithPrefix("", new(Third))
-	orm.RunSyncdb("default", true, true)
-	orm.RunSyncdb("write", true, true)
-	orm.RunSyncdb("read", true, true)
+	//orm.RunSyncdb("default", true, true)
+	//orm.RunSyncdb("write", true, true)
+	//orm.RunSyncdb("read", true, true)
 }
 
 // add one third company

@@ -3,12 +3,14 @@ package test
 import (
 	"fmt"
 	"mygo/models"
+	_ "mygo/routers"
+	"mygo/tools"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-	"runtime"
 	"path/filepath"
-	_ "mygo/routers"
+	"runtime"
+	"testing"
+	"time"
 
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
@@ -57,5 +59,29 @@ func TestAddThird(t *testing.T) {
 	}
 	num, err := models.AddThird(&third)
 	fmt.Print(num, err)
+}
+
+func TestSha1Encode(t *testing.T) {
+	t.Log(tools.Sha1Encode("lbs"))
+}
+
+func TestDayTime(t *testing.T) {
+	t.Log(tools.GetEndTime(time.Now()), tools.GetStartTime(time.Now()))
+}
+
+func TestMonthTime(t *testing.T) {
+	t.Log(tools.GetMonthStart(time.Now()), tools.GetMonthEnd(time.Now()))
+}
+
+func TestStrToTime(t *testing.T) {
+	t.Log(tools.StrToTime("2020-1"))
+}
+
+func TestIfCidrCorrect(t *testing.T) {
+	t.Log(tools.IfCidrCorrect("192.0.2.1/24"))
+}
+
+func TestIpToInt(t *testing.T) {
+	t.Log(tools.IpToInt("127.0.0.1"))
 }
 
