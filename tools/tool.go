@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
-	"go/types"
+	_ "go/types"
 	"net"
 	"os"
 	"reflect"
@@ -197,7 +197,7 @@ func GetLocalIp(n int) string {
 }
 
 // send http request
-func Curl(method string, url string, params map[string]interface{}, jsonparam string, header map[string], isHttps bool) (string, error) {
+func Curl(method string, url string, params map[string]interface{}, jsonparam string, header map[string]string, isHttps bool) (string, error) {
 	req := new(httplib.BeegoHTTPRequest)
 	if method == "get" {
 		if params != nil {
