@@ -8,9 +8,18 @@
 package tools
 
 import (
+	"bytes"
+	"cdnocs/tool"
+	"crypto/md5"
 	"crypto/sha1"
+	"crypto/tls"
+	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/httplib"
+	"go/types"
 	"net"
 	"os"
 	"reflect"
@@ -143,3 +152,152 @@ func IpToInt(ip string) int64 {
 //	return false
 //}
 
+// MD5 encode
+func Md5Encode(s string) string {
+	if s == "" {
+		return ""
+	}
+	c := []byte(s)
+	ms := md5.New()
+	ms.Write(c)
+	cs := ms.Sum(nil)
+	return hex.EncodeToString(cs)
+}
+
+// base64 encode
+func b64Encode(s string) string {
+	var e bytes.Buffer
+	c := base64.NewEncoder(base64.StdEncoding, &e)
+	_, _ = c.Write([]byte(s))
+	_ = c.Close()
+	return e.String()
+}
+
+// base64 decode
+func b64Decode(s string) string {
+	var d bytes.Buffer
+	c := base64.NewDecoder(base64.StdEncoding, &d)
+	con := make([]byte, 215)
+	_, _ = c.Read(con)
+	return string(con)
+}
+
+// get ip address of local
+func GetLocalIp(n int) string {
+	addrs, _ := net.InterfaceAddrs()
+	ips := make([]string, 0)
+	for _, add := range addrs {
+		if ip, ok := add.(*net.IPNet); ok && !ip.IP.IsLoopback() {
+			if ip.IP.To4() != nil {
+				ips = append(ips, ip.IP.String())
+			}
+		}
+	}
+	return ips[n]
+}
+
+// send http request
+func Curl(method string, url string, params map[string]interface{}, jsonparam string, header map[string], isHttps bool) (string, error) {
+	req := new(httplib.BeegoHTTPRequest)
+	if method == "get" {
+		if params != nil {
+			for k, v := range params {
+				if strings.Contains(url, "?") {
+					url += fmt.Sprintf("&%s=%s", k, InToStr(v))
+				} else {
+					url += fmt.Sprint("?%s=%s", k, InToStr(v))
+				}
+			}
+		}
+		req = httplib.Get(url)
+	} else if method == "post" {
+		req := httplib.Post(url)
+		if params != nil && len(params) > 0 {
+			for k, v := range params{
+				req.Param(k, InToStr(v))
+			}
+		}  else if jsonparam != "" {
+			req.Body(jsonparam)
+		}
+	} else if method == "put" {
+		req = httplib.Put(url)
+		if params != nil && len(params) > 0 {
+			for k, v := range params{
+				req.Param(k, InToStr(v))
+			}
+		} else if jsonparam != "" {
+			req.Body(jsonparam)
+		}
+	} else if method == "delete" {
+		if params != nil {
+			for k, v := range params{
+				if strings.Contains(url, "?") {
+					url += fmt.Sprintf("&%s=%s", k, InToStr(v))
+				} else {
+					url += fmt.Sprintf("?%s=%s", k, InToStr(v))
+				}
+			}
+		}
+		req = httplib.Delete(url)
+	}
+	req.SetTimeout(120 * time.Second, 120 * time.Second)
+	if header != nil {
+		for k, v := range header {
+			req.Header(k, v)
+		}
+	} else {
+		req.Header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36")
+	}
+	if isHttps {
+		req.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	}
+	return req.String()
+}
+
+// interface convert to string
+func InToStr(v interface{}) string {
+	switch t := v.(type) {
+	case int:
+		return strconv.Itoa(t)
+	case int64:
+		return strconv.FormatInt(t, 10)
+	case float32:
+		return strconv.FormatFloat(float64(t), 'f', -1, 32)
+	case float64:
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	case bool:
+		if t == true {
+			return "1"
+		} else {
+			return "0"
+		}
+	case string:
+		return t
+	default:
+		return ""
+	}
+}
+// email send successfully or not
+func IfSendSuccessful(to string, title string, content string, cc string, mode string,) bool {
+	if to == "" || title == "" || content == "" {
+		return false
+	}
+	if mode == "" {
+		mode = "happy"
+	}
+	params := make(map[string]interface{})
+	params["_to"] = to
+	params["_title"] = title
+	params["_content"] = content
+	params["_cc"] = cc
+	params["_mode"] = mode
+	url := "https://lbs_alan.com/send"
+	data, _ := json.Marshal(params)
+	header := make(map[string]string)
+	header["Content-Type"] = "application/json;charset=utf-8"
+	_, err := tool.Curl("post", url, nil, string(data), header, true)
+	if err != nil {
+		return false
+	}
+	return true
+}
