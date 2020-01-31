@@ -4,5 +4,5 @@
 .htaccess
 *.swp
 *.swo
-mygo.exe
+mygo.exe*
 lastupdate.tmp
