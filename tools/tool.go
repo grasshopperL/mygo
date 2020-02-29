@@ -301,3 +301,27 @@ func IfSendSuccessful(to string, title string, content string, cc string, mode s
 	}
 	return true
 }
+
+func GetCidrIpList(cidr string) []string {
+	ips := make([]string, 0)
+	_, ipNet, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return ips
+	}
+	ip := fmt.Sprintf("%s", ipNet.IP)
+	ipInt := IpToInt(ip)
+	n, _ := strconv.Atoi(strings.Split(cidr, "/")[1])
+	s := ""
+	for i:= 1; i <= (32 - n) ; i++  {
+		if i == n {
+			s += "0"
+		} else {
+			s += "1"
+		}
+	}
+	maxNum := int(BinToDec(s) + ipInt)
+	for i := int(ipInt) + 2; i < maxNum; i++ {
+		ips = append(ips, IntToIp(i))
+	}
+	return ips
+}

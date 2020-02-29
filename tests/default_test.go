@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"mygo/models"
+	"mygo/others"
 	_ "mygo/routers"
 	"mygo/tools"
 	"net/http"
@@ -84,4 +85,9 @@ func TestIfCidrCorrect(t *testing.T) {
 func TestIpToInt(t *testing.T) {
 	t.Log(tools.IpToInt("127.0.0.1"))
 }
+
+func TestMain1(t *testing.T) {
+	others.Main()
+}
+
 
