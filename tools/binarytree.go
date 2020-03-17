@@ -37,25 +37,113 @@ func NewBinaryTree(v interface{}) *BinTree {
 }
 
 // pre order
-func preOrder(r *TreeNode) []int64 {
+func PreOrder(t *BinTree) *ArrayStack {
+	r := t.H
 	if r == nil {
 		return nil
 	}
-	if r.L == nil && r.R == nil {
-		return []int64{r.Val.(int64)}
-	}
-	var res []int64
-	var stack []*TreeNode
-	stack = append(stack, r)
-	for len(stack) != 0 {
-		e := stack[len(stack) - 1]
-		res = append(res, e.Val.(int64))
-		stack = stack[:len(stack) - 1]
-		if e.R != nil {
-			stack = append(stack, e.R)
+	s := NewArrayStack()
+	res := NewArrayStack()
+	_ = s.Push(r)
+	for !s.IsEmpty() {
+		res.Push(s.Pop())
+		if r.R != nil {
+			s.Push(r.L)
 		}
-		if r.L != nil {
-			stack = append(stack, e.L)
+		if r.R != nil {
+			s.Push(r.R)
+		}
+	}
+	return res
+}
+
+// in order
+func InOrder(t *BinTree) *ArrayStack {
+	r := t.H
+	res := NewArrayStack()
+	s := NewArrayStack()
+	if r == nil {
+		return nil
+	}
+	for r != nil || !s.IsEmpty() {
+		if r != nil {
+			s.Push(r)
+			r = r.L
+		} else {
+			e := s.Pop().(*TreeNode)
+			res.Push(e.Val)
+			r = e.R
+		}
+	}
+	return res
+}
+
+// pre order
+func PreOrderTwo(t *BinTree) *ArrayStack {
+	r := t.H
+	res := NewArrayStack()
+	s := NewArrayStack()
+	if r == nil {
+		return nil
+	}
+	for r != nil || !s.IsEmpty() {
+		if r != nil {
+			res.Push(r.Val)
+			s.Push(r)
+			r = r.L
+		} else {
+			r = s.Pop().(*TreeNode).R
+		}
+	}
+	return res
+}
+
+// post order ok, if you say why two stack, you can down a little
+func PostOrder(t *BinTree) *ArrayStack {
+	r := t.H
+	if r == nil {
+		return nil
+	}
+	res := NewArrayStack()
+	s1 := NewArrayStack()
+	s2 := NewArrayStack()
+	s1.Push(r)
+	for !s1.IsEmpty() {
+		e := s1.Pop().(*TreeNode)
+		s2.Push(e)
+		if e.L != nil {
+			s1.Push(e.L)
+		}
+		if e.R != nil {
+			s1.Push(e.R)
+		}
+	}
+	for !s2.IsEmpty() {
+		res.Push(s2.Pop().(*TreeNode).Val)
+	}
+	return res
+}
+
+// post order two
+func PostOrderTwo(t *BinTree) *ArrayStack {
+	r := t.H
+	res := NewArrayStack()
+	s := NewArrayStack()
+	s.Push(r)
+	var pre *TreeNode
+	if !s.IsEmpty() {
+		r = s.Top().(*TreeNode)
+		if (r.L != nil && r.R != nil) || (pre != nil && (pre == r.R || pre == r.L)) {
+			res.Push(r.Val)
+			s.Pop()
+			pre = r
+		} else {
+			if r.R != nil {
+				s.Push(r.R)
+			}
+			if r.L != nil {
+				s.Push(r.L)
+			}
 		}
 	}
 	return res

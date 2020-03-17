@@ -51,7 +51,7 @@ func (a *ArrayStack) Push(v interface{}) int {
 }
 
 //Pop
-func (a *ArrayStack) Pop(v interface{}) interface{} {
+func (a *ArrayStack) Pop() interface{} {
 	if a.top < 0 {
 		return nil
 	}
