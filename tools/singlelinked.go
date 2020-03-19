@@ -7,6 +7,8 @@
 
 package tools
 
+import "fmt"
+
 // node struct
 type Node struct {
 	N *Node
@@ -69,19 +71,90 @@ func (l *LinkedList) InsertAfter(n *Node, v interface{}) bool {
 }
 
 // insert before the given node
-//func (l *LinkedList) InsertBefore(n *Node, v interface{}) bool {
-//	if n == nil {
-//		return false
-//	}
-//	h := l.H
-//	for h != nil {
-//		if h == n {
-//			break
-//		}
-//		h = h.GetNext()
-//	}
-//	if h == nil {
-//		return false
-//	}
-//}
+func (l *LinkedList) InsertBefore(n *Node, v interface{}) bool {
+	if n == nil {
+		return false
+	}
+	h := l.H
+	for h != nil {
+		if h.GetNext() == n {
+			break
+		}
+		h = h.GetNext()
+	}
+	if h == nil {
+		return false
+	}
+	temp := NewLinkNode(v)
+	temp.N = n
+	h.N = temp
+	l.L++
+	return true
+}
+
+// insert a node to head
+func (l *LinkedList) InsertToHead(v interface{}) bool {
+	n := NewLinkNode(v)
+	if l.H == nil {
+		l.H = n
+	} else {
+		n.N = l.H.N
+		l.H.N = n
+	}
+	l.L++
+	return true
+}
+
+// insert a node to tail
+func (l *LinkedList) InsertToTail(v interface{}) bool {
+	n := l.H
+	for nil != n.N {
+		n = n.GetNext()
+	}
+	return l.InsertAfter(n, v)
+}
+
+// find the node by index
+func (l *LinkedList) FindNodeByIndex(i int) *Node {
+	if i > l.L {
+		return nil
+	}
+	n := l.H
+	for i != 0 {
+		i--
+		n = n.GetNext()
+	}
+	return n
+}
+
+// delete the node by node
+func (l *LinkedList) DeleteNode(n *Node) bool {
+	h := l.H
+	for h != nil {
+		if h.GetNext() == n {
+			break
+		}
+		h = h.GetNext()
+	}
+	if h == nil {
+		return false
+	}
+	h.N = n.GetNext()
+	l.L--
+	return true
+}
+
+// print the list
+func (l *LinkedList) Print() {
+	cur := l.H.N
+	format := ""
+	for nil != cur {
+		format += fmt.Sprintf("%+v", cur.GetVal())
+		cur = cur.GetNext()
+		if nil != cur {
+			format += "->"
+		}
+	}
+	fmt.Println(format)
+}
 
