@@ -18,6 +18,9 @@ type ArrayQueue struct {
 
 // init an array queue
 func NewArrayQueue(n int) *ArrayQueue {
+	if n <= 0 {
+		return nil
+	}
 	return &ArrayQueue{
 		q: make([]interface{}, n),
 		h: 0,
