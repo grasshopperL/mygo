@@ -7,6 +7,8 @@
 
 package tools
 
+import "fmt"
+
 // struct circular queue
 type CircularQueue struct {
 	q []interface{}
@@ -46,6 +48,40 @@ func (c *CircularQueue) IsFull() bool {
 }
 
 // push a value to queue
-//func (c *CircularQueue)  {
-//
-//}
+func (c *CircularQueue) Enqueue(v interface{}) bool {
+	if t := c.IsFull(); t {
+		return false
+	}
+	c.q[c.t] = v
+	c.t = (c.t + 1) % c.c
+	c.c++
+	return true
+}
+
+// pop a value from queue
+func (c *CircularQueue) Dequeue() interface{} {
+	if t := c.IsEmpty(); t {
+		return false
+	}
+	v := c.q[c.h]
+	c.h = (c.h + 1) % c.c
+	return v
+}
+
+// over write String()
+func (c *CircularQueue) String() string {
+	if t := c.IsEmpty(); t {
+		return "empty queue"
+	}
+	result := "head"
+	var i = c.h
+	for true {
+		result += fmt.Sprintf("<-%+v", c.q[i])
+		i = (i + 1) % c.c
+		if i == c.t {
+			break
+		}
+	}
+	result += "<-tail"
+	return result
+}
