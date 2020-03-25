@@ -42,8 +42,30 @@ func (h *Heap) Insert(v int) bool {
 }
 
 // hwo to use two return value to finish this methods
-//func (h *Heap) RemoveMax() int {
-//	if h.c == 0 {
-//
-//	}
-//}
+func (h *Heap) RemoveMax() bool {
+	if h.c == 0 {
+		return false
+	}
+	h.h[1], h.h[h.c] = h.h[h.c], h.h[1]
+	h.c--
+	hUpToDown(h.h, h.c)
+	return true
+}
+
+// heapify
+func hUpToDown(h []int, c int) {
+	for i := 1; i < c / 2;  {
+		mI := i
+		if h[i] < h[i * 2] {
+			mI = i * 2
+		}
+		if i * 2 + 1 <= c && h[mI] < h[i * 2 + 1] {
+			mI = i * 2 + 1
+		}
+		if mI == i {
+			break
+		}
+		h[i], h[mI] = h[mI], h[i]
+		i = mI
+	}
+}
