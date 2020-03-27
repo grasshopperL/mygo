@@ -26,3 +26,10 @@ func NewGraph(c int) *Graph {
 	}
 	return g
 }
+
+// add an edge
+func (g *Graph) AddEdge(s int, t int) {
+	g.adj[s].PushBack(t)
+	g.adj[t].PushBack(s)
+}
+
