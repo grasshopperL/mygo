@@ -33,3 +33,11 @@ func (g *Graph) AddEdge(s int, t int) {
 	g.adj[t].PushBack(s)
 }
 
+// search path by bfs
+func (g *Graph) BFS(s int, t int) {
+	// todo
+	if s == t {
+		return
+	}
+}
+
