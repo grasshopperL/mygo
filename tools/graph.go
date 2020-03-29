@@ -39,5 +39,17 @@ func (g *Graph) BFS(s int, t int) {
 	if s == t {
 		return
 	}
+	pre := make([]int, g.v)
+	for i := range pre {
+		pre[i] = -1
+	}
+	var queue []int
+	visited := make([]bool, g.v)
+	queue = append(queue, s)
+	visited[s] = true
+	isFound := false
+	for len(queue) > 0 && !isFound{
+		
+	}
 }
 
