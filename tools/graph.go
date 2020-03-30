@@ -7,7 +7,10 @@
 
 package tools
 
-import "container/list"
+import (
+	"container/list"
+	"fmt"
+)
 
 // the struct of graph
 type Graph struct {
@@ -48,8 +51,38 @@ func (g *Graph) BFS(s int, t int) {
 	queue = append(queue, s)
 	visited[s] = true
 	isFound := false
-	for len(queue) > 0 && !isFound{
-		
+	for len(queue) > 0 && !isFound {
+		top := queue[0]
+		queue = queue[1:]
+		linkedlist := g.adj[top]
+		for e := linkedlist.Front(); e != nil; e = e.Next() {
+			k := e.Value.(int)
+			if !visited[k] {
+				pre[k] = top
+				if k == t {
+					isFound = true
+					break
+				}
+				queue = append(queue, k)
+				visited[k] = true
+			}
+		}
 	}
+	if isFound {
+		printPre(prev, s, t)
+	} else {
+		fmt.Printf("no path found from %d to %d\n", s, t)
+	}
+}
+
+//print path recursively
+func printPrev(prev []int, s int, t int) {
+	if t == s || prev[t] == -1 {
+		fmt.Printf("%d ", t)
+	} else {
+		printPrev(prev, s, prev[t])
+		fmt.Printf("%d ", t)
+	}
+
 }
 
