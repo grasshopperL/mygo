@@ -69,13 +69,29 @@ func (g *Graph) BFS(s int, t int) {
 		}
 	}
 	if isFound {
-		printPre(prev, s, t)
+		printPrev(pre, s, t)
 	} else {
 		fmt.Printf("no path found from %d to %d\n", s, t)
 	}
 }
 
-//print path recursively
+// search path by dfs
+func (g *Graph) DFS(s int, t int) {
+	prev := make([]int, g.v)
+	for i := range prev {
+		prev[i] = -1
+	}
+	visited := make([]bool, g.v)
+	visited[s] = true
+	isFound := false
+	g.recurse(s, t, prev, visited, isFound)
+	printPrev(prev, s, t)
+}
+
+// find path recursively
+func (g *Graph) recurse(s int, t int, p []int, v []bool, iF bool) {}
+
+// print path recursively
 func printPrev(prev []int, s int, t int) {
 	if t == s || prev[t] == -1 {
 		fmt.Printf("%d ", t)
