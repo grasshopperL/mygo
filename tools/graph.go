@@ -89,7 +89,24 @@ func (g *Graph) DFS(s int, t int) {
 }
 
 // find path recursively
-func (g *Graph) recurse(s int, t int, p []int, v []bool, iF bool) {}
+func (g *Graph) recurse(s int, t int, p []int, v []bool, iF bool) {
+	if iF {
+		return
+	}
+	v[s] = true
+	if s == t {
+		iF = true
+		return
+	}
+	linkedlist := g.adj[s]
+	for n := linkedlist.Front(); n != nil; n = n.Next() {
+		k := n.Value.(int)
+		if !v[k] {
+			p[k] = s
+			g.recurse(k, t, p, v, false)
+		}
+	}
+}
 
 // print path recursively
 func printPrev(prev []int, s int, t int) {
