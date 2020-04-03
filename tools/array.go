@@ -7,6 +7,8 @@
 
 package tools
 
+import "errors"
+
 // just for fun
 type Array struct {
 	d []int
@@ -29,6 +31,24 @@ func (a *Array) Len() int {
 	return a.l
 }
 
-func (a *Array) IsIndexOutOfRange() bool {
+// jude index out of range or not
+func (a *Array) IsIndexOutOfRange(i int) bool {
+	if i > cap(a.d) {
+		return true
+	}
+	return false
+}
+
+// find value by
+func (a *Array) FindByIndex(i int) (error, int) {
+	if a.IsIndexOutOfRange(i) {
+		return errors.New("out of range"), 0
+	}
+	return nil, a.d[i]
+}
+
+// insert value by index
+func (a *Array) InsertByIndex(i int, v int) bool {
 	
+	return true
 }
