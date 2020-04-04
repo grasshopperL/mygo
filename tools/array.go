@@ -49,6 +49,18 @@ func (a *Array) FindByIndex(i int) (error, int) {
 
 // insert value by index
 func (a *Array) InsertByIndex(i int, v int) bool {
-	
+	if a.l == cap(a.d)  {
+		return false
+	}
+	if a.IsIndexOutOfRange(i) {
+		return false
+	}
+	for k := a.l; k > i; k-- {
+		a.d[k] = a.d[k - 1]
+	}
+	a.d[i] = v
+	a.l++
 	return true
 }
+
+
