@@ -7,7 +7,10 @@
 
 package tools
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 // just for fun
 type Array struct {
@@ -64,3 +67,37 @@ func (a *Array) InsertByIndex(i int, v int) bool {
 }
 
 
+// insert to tail
+func (a *Array) InsertToTail(v int) bool {
+	if a.l == cap(a.d) {
+		return false
+	}
+	a.d[a.l] = v
+	a.l++
+	return true
+}
+
+// delete by index
+func (a *Array) DeleteByIndex(i int) (bool, int) {
+	if a.l == 0 {
+		return false, 0
+	}
+	if a.IsIndexOutOfRange(i) {
+		return false, 0
+	}
+	v := a.d[i]
+	for k := i; k < a.l - 1; k++ {
+		a.d[k] = a.d[k+1]
+	}
+	a.l--
+	return true, v
+}
+
+// print array
+func (a *Array) Print() {
+	var format string
+	for i := 0; i < a.l; i++ {
+		format += fmt.Sprintf("|%+v", a.d[i])
+	}
+	fmt.Println(format)
+}
