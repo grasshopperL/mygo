@@ -53,3 +53,32 @@ func (r *Ringr) Move(n int) *Ringr {
 	}
 	return r
 }
+
+// new a ringr
+func New(n int) *Ringr {
+	if n <= 0 {
+		return nil
+	}
+	r := new(Ringr)
+	p := r
+	for i := 0; i < n; i++ {
+		p.next = &Ringr{pre:p}
+		p = p.next
+	}
+	p.next = r
+	r.pre = p
+	return r
+}
+
+// link the ring
+func (r *Ringr) Link(s *Ringr) *Ringr {
+	n := r.Next()
+	if s != nil {
+		p := s.Prev()
+		r.next = s
+		s.prev = r
+		n.prev = p
+		p.next = n
+	}
+	return n
+}
