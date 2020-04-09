@@ -76,9 +76,30 @@ func (r *Ringr) Link(s *Ringr) *Ringr {
 	if s != nil {
 		p := s.Prev()
 		r.next = s
-		s.prev = r
-		n.prev = p
+		s.pre = r
+		n.pre = p
 		p.next = n
+	}
+	return n
+}
+
+// remove some ringers from ring
+// a little meng
+func (r *Ringr) Unlink(n int) *Ringr {
+	if n <= 0 {
+		return nil
+	}
+	return r.Link(r.Move(n + 1))
+}
+
+// the length of the ring
+func (r *Ringr) Len() int {
+	n := 0
+	if r != nil {
+		n := 1
+		for p := r.Next(); p != r; p = p.next {
+			n++
+		}
 	}
 	return n
 }
