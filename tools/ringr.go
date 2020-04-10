@@ -103,3 +103,14 @@ func (r *Ringr) Len() int {
 	}
 	return n
 }
+
+// Do?
+// if change r, what will happen
+func (r *Ringr) Do(f func(interface{})) {
+	if r != nil {
+		f(r.Value)
+		for p := r.Next(); p != r; p = p.Next() {
+			f(p.Value)
+		}
+	}
+}
