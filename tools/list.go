@@ -43,3 +43,47 @@ func (l *List) Init() *List {
 	l.len = 0
 	return l
 }
+
+// new a list
+func NewList() *List {
+	return new(List).Init()
+}
+
+// the length of the list
+func (l *List) Len() int {
+	return l.len
+}
+
+// the front node of l
+func (l *List) Front() *Element {
+	if l.len == 0 {
+		return nil
+	}
+	return l.root.next
+}
+
+// the prev node of l
+func (l *List) Back() *Element {
+	if l.len == 0 {
+		return nil
+	}
+	return l.root.prev
+}
+
+// lazy init
+func (l *List) lazyInit() {
+	if l.root.next == nil {
+		l.Init()
+	}
+}
+
+// insert a element after at
+func (l *List) insert(e, at *Element) *Element {
+	e.prev = at
+	e.next = at.next
+	at.next = e
+	e.prev.next = e
+	e.next.prev = e
+	l.len++
+	return e
+}
