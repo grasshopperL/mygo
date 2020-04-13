@@ -108,5 +108,18 @@ func (l *List) remove(e *Element) *Element {
 	return e
 }
 
-// 
+// move node to after to given node
+func (l *List) move(e, at *Element) *Element {
+	if e == at {
+		return e
+	}
+	e.next = e.prev.next
+	e.prev = e.next.prev
+	e.prev = at
+	e.next = at.next
+	e.prev.next = e
+	e.next.prev = e
+	l.len++
+	return e
+}
 
