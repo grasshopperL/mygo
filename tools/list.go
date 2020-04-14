@@ -123,3 +123,11 @@ func (l *List) move(e, at *Element) *Element {
 	return e
 }
 
+// remove a node from list
+func (l *List) Remove(e *Element) interface{} {
+	if e.list == l {
+		l.remove(e)
+	}
+	return e.Value
+}
+
