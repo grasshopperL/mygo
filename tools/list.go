@@ -131,3 +131,9 @@ func (l *List) Remove(e *Element) interface{} {
 	return e.Value
 }
 
+// why lazy init?
+func (l *List) PushFront(v interface{}) *Element {
+	l.lazyInit()
+	return l.insertValue(v ,&l.root)
+}
+
