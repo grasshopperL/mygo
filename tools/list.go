@@ -137,3 +137,9 @@ func (l *List) PushFront(v interface{}) *Element {
 	return l.insertValue(v ,&l.root)
 }
 
+// why lazy init
+func (l *List) PushBack(v interface{}) *Element {
+	l.lazyInit()
+	return l.insertValue(v, l.root.prev)
+}
+
