@@ -143,3 +143,18 @@ func (l *List) PushBack(v interface{}) *Element {
 	return l.insertValue(v, l.root.prev)
 }
 
+// insert element before mark
+func (l *List) InsertBefore(v interface{}, mark *Element) *Element {
+	if mark.list != l {
+		return nil
+	}
+	return l.insertValue(v, mark.prev)
+}
+
+// insert element after mark
+func (l *List) InsertAfter(v interface{}, mark *Element) *Element {
+	if mark.list != l {
+		return nil
+	}
+	return l.insertValue(v, mark.next)
+}
