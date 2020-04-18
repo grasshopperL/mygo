@@ -158,3 +158,35 @@ func (l *List) InsertAfter(v interface{}, mark *Element) *Element {
 	}
 	return l.insertValue(v, mark.next)
 }
+
+// move element to front of list
+func (l *List) MoveToFront(e *Element) {
+	if e.list != l || l.root.next == e {
+		return
+	}
+	l.move(e, &l.root)
+}
+
+// move element to end of list
+func (l *List) MoveToBack(e *Element) {
+	if e.list != l || l.root.prev == e {
+		return
+	}
+	l.move(e, l.root.prev)
+}
+
+// move element before the given element
+func (l *List) MoveBefore(e, at *Element) *Element {
+	if at.list != l || e.list != l || e == at {
+		return nil
+	}
+	return l.move(e, at.prev)
+}
+
+// move element after the given element
+func (l *List) MoveAfter(e, at *Element) *Element {
+	if at.list != l || e.list != l || e == at {
+		return nil
+	}
+	return l.move(e, at)
+}
