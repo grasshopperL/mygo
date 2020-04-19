@@ -190,3 +190,19 @@ func (l *List) MoveAfter(e, at *Element) *Element {
 	}
 	return l.move(e, at)
 }
+
+// push other list before l
+func (l *List) PushBackList(other *List) {
+	l.lazyInit()
+	for i, e := other.Len(), other.Front(); i > 0; i, e = i - 1, e.Next() {
+		l.insertValue(e.Value, l.root.prev)
+	}
+}
+
+// push other list after l
+func (l *List) PushFrontList(other *List) {
+	l.lazyInit()
+	for i, e := other.Len(), other.Front(); i > 0; i, e = i - 1, e.Next() {
+		l.insertValue(e.Value, l.root.next)
+	}
+}
