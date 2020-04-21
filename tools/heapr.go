@@ -9,9 +9,17 @@ package tools
 
 import "sort"
 
-// maybe implement the interface do a heap
+// implement the interface do a heap
 type Interface interface {
 	sort.Interface
 	Push(x interface{})
 	Pop()
+}
+
+// init a heap ???
+func Init(h Interface)  {
+	n := h.Len()
+	for i := n/2 -1; i >= 0; i-- {
+		down(h, i, n)
+	}
 }
