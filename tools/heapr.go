@@ -7,7 +7,10 @@
 
 package tools
 
-import "sort"
+import (
+	"hash/crc32"
+	"sort"
+)
 
 // implement the interface do a heap
 type Interface interface {
@@ -22,4 +25,10 @@ func Init(h Interface)  {
 	for i := n/2 -1; i >= 0; i-- {
 		down(h, i, n)
 	}
+}
+
+// push a value to heap
+func Push(h Interface, x interface{}) {
+	h.Push(x)
+	up(h, h.Len() - 1)
 }
