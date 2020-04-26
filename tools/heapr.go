@@ -50,4 +50,12 @@ func Remove(h Interface, i int) interface{} {
 			up(h, i)
 		}
 	}
+	return h.Pop
+}
+
+// I don't know why do like this
+func Fix(h Interface, i int) {
+	if !down(h, i, h.Len()) {
+		up(h, i)
+	}
 }
