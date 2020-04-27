@@ -8,7 +8,6 @@
 package tools
 
 import (
-	"hash/crc32"
 	"sort"
 )
 
@@ -16,7 +15,7 @@ import (
 type Interface interface {
 	sort.Interface
 	Push(x interface{})
-	Pop()
+	Pop() interface{}
 }
 
 // init a heap ???
@@ -38,7 +37,7 @@ func Pop(h Interface) interface{} {
 	n := h.Len() - 1
 	h.Swap(0, n)
 	down(h, 0, n)
-	return h.Pop
+	return h.Pop()
 }
 
 // remove one value
@@ -50,7 +49,7 @@ func Remove(h Interface, i int) interface{} {
 			up(h, i)
 		}
 	}
-	return h.Pop
+	return h.Pop()
 }
 
 // I don't know why do like this
@@ -58,4 +57,38 @@ func Fix(h Interface, i int) {
 	if !down(h, i, h.Len()) {
 		up(h, i)
 	}
+}
+
+// exchange from j to j's parent
+func up(h Interface, j int) {
+	for  {
+		i := (j - 1) / 2
+		if i == j || !h.Less(i, j) {
+			break
+		}
+		h.Swap(i, j)
+		j = i
+	}
+
+}
+
+// exchange from i to i's child
+func down(h Interface, i0, n int) bool {
+	i := i0
+	for  {
+		j1 := 2 * i + 1
+		if j1 < 0 || j1 > n {
+			break
+		}
+		j := j1
+		if j2 := j1 + 1; j2 < n && !h.Less(j2, j1) {
+			j = j2
+		}
+		if !h.Less(j, i) {
+			break
+		}
+		h.Swap(i, j)
+		i = j
+	}
+	return i > i0
 }
