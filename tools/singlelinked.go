@@ -158,3 +158,30 @@ func (l *LinkedList) Print() {
 	fmt.Println(format)
 }
 
+type ListNode struct {
+	Val int
+	Next *ListNode
+}
+func merge(l1, l2 *ListNode) *ListNode {
+	r := &ListNode{}
+	c := r
+	if l1 == nil {
+		c.Next = l2
+	}
+	if l2 == nil {
+		c.Next = l1
+	}
+	for l1 != nil && l2 != nil {
+		if l1.Val > l2.Val {
+			c.Next = l2
+			l2 = l2.Next
+		} else {
+			c.Next = l1
+			l1 = l1.Next
+		}
+		c = c.Next
+	}
+	return c.Next
+}
+
+
