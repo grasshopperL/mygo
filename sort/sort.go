@@ -60,3 +60,23 @@ func heapSort(data Interface, a, b int)  {
 		siftDown(data, lo, i, first)
 	}
 }
+
+// make the sort by data[m0] <= data[m1] <= data[m2]
+func medianOfThree(data Interface, m0, m1, m2 int) {
+	if !data.Less(m0, m1) {
+		data.Swap(m0, m1)
+	}
+	if !data.Less(m1, m2) {
+		data.Swap(m1, m2)
+		if !data.Less(m0, m2) {
+			data.Swap(m0, m2)
+		}
+	}
+}
+
+//  swap value by range
+func swapRange(data Interface, a, b, n int) {
+	for i := 0; i < n; i++ {
+		data.Swap(a + i, b + i)
+	}
+}
