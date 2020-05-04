@@ -80,3 +80,30 @@ func swapRange(data Interface, a, b, n int) {
 		data.Swap(a + i, b + i)
 	}
 }
+
+// I don't know why
+func quickSort(data Interface, a, b, maxDepth int) {
+	for b - a > 12 {
+		if maxDepth == 0 {
+			heapSort(data, a, b)
+			return
+		}
+		maxDepth--
+		mlo, mhi := doPivot(data, a, b)
+		if mlo - a < b - mhi {
+			quickSort(data, a, mlo, maxDepth)
+			a = mhi 
+		} else {
+			quickSort(data, mhi, b, maxDepth)
+			b = mlo
+		}
+	}
+	if b - a  > 1 {
+		for i := a + 6; i < b; i++ {
+			if data.Less(i, i-6) {
+				data.Swap(i, i-6)
+			}
+		}
+		insertionSort(data, a, b)
+	}
+}
