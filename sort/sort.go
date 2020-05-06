@@ -7,6 +7,8 @@
 
 package sort
 
+import "mygo/tools"
+
 // the interface of sort
 type Interface interface {
 	Len() int
@@ -119,4 +121,37 @@ func maxDepth(n int) int {
 		depth++
 	}
 	return depth * 2
+}
+
+type lessSwap struct {
+	Less func(i, j int) bool
+	Swap func(i, j int)
+}
+
+type reverse struct {
+	Interface
+}
+
+func (r reverse) Less(i, j int) bool {
+	return r.Interface.Less(i, j)
+}
+
+func (r reverse) Swap(i, j int) {
+	r.Interface.Swap(i, j)
+}
+
+// return a reverse interface
+func Reverse(data Interface) Interface {
+	return &reverse{data}
+}
+
+// is sort or not
+func isSorted(data Interface) bool {
+	n := data.Len()
+	for i := n - 1; i > 0; i-- {
+		if data.Less(i, i - 1) {
+			return false
+		}
+	}
+	return true
 }
