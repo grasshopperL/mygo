@@ -56,3 +56,28 @@ func (r *Readr) ReadAt(b []byte, off int) (n int, err error) {
 	}
 	return
 }
+
+// read one byte
+func (r *Readr) ReadByte() (byte, error) {
+	r.prevRune = -1
+	if r.i >= int64(len(r.s)) {
+		return 0, io.EOF
+	}
+	b := r.s[r.i]
+	r.i++
+	return b, nil
+}
+
+// rollback one byte
+func (r *Readr) UnReadByte() error {
+	if r.i <= 0 {
+		return errors.New("stringr.Readr.UnReadByte: at the beginning of string")
+	}
+	r.prevRune = -1
+	r.i--
+	return nil
+}
+
+func (r *Readr) ReadRune() {
+	
+}
