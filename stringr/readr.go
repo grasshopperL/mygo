@@ -10,6 +10,7 @@ package stringr
 import (
 	"errors"
 	"io"
+	"unicode/utf8"
 )
 
 type Readr struct {
@@ -78,6 +79,18 @@ func (r *Readr) UnReadByte() error {
 	return nil
 }
 
-func (r *Readr) ReadRune() {
-	
+// I don't know why 
+func (r *Readr) ReadRune() (ch rune, size int, err error){
+	if r.i > int64(len(r.s)) {
+		r.prevRune = -1
+		return 0, 0, io.EOF
+	}
+	r.prevRune = int(r.i)
+	if c := r.s[r.i]; c < utf8.RuneSelf {
+		r.i++
+		return rune(c), 1, nil
+	}
+	ch, size = utf8.DecodeRuneInString(r.s[r.i:])
+	r.i += int64(size)
+	return
 }
