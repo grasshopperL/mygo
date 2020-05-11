@@ -79,7 +79,7 @@ func (r *Readr) UnReadByte() error {
 	return nil
 }
 
-// I don't know why 
+// I don't know why
 func (r *Readr) ReadRune() (ch rune, size int, err error){
 	if r.i > int64(len(r.s)) {
 		r.prevRune = -1
@@ -93,4 +93,36 @@ func (r *Readr) ReadRune() (ch rune, size int, err error){
 	ch, size = utf8.DecodeRuneInString(r.s[r.i:])
 	r.i += int64(size)
 	return
+}
+
+// unread one rune
+// can't use UnReadRune in for loop ?
+func (r *Readr) UnReadRune() error {
+	if r.i < 0 {
+		return errors.New("stringr.readr.UnReadRune: at the beginning of string")
+	}
+	if r.prevRune < 0 {
+		return errors.New("stringr.readr.UnReadRune: previous operation is not ReadRune")
+	}
+	r.i = int64(r.prevRune)
+	r.prevRune = -1
+	return nil
+}
+
+// reset reader
+func (r *Readr) Reset(s string) {
+	*r = Readr{
+		s:        s,
+		i:        0,
+		prevRune: -1,
+	}
+}
+
+// return a new reader
+func NewReader(s string) *Readr {
+	return &Readr{
+		s:        s,
+		i:        0,
+		prevRune: -1,
+	}
 }
