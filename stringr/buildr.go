@@ -45,3 +45,25 @@ func (b *Buildr) Reset() {
 	b.addr = nil
 	b.buf = nil
 }
+
+// write some byte
+func (b *Buildr) Write(p []byte) (int, error) {
+	b.copyCheck()
+	b.buf = append(b.buf, p...)
+	return len(b.buf), nil
+}
+
+// write byte
+func (b *Buildr) WriteByte(c byte) error {
+	b.copyCheck()
+	b.buf = append(b.buf, c)
+	return nil
+}
+
+// write string
+func (b *Buildr) WriteString(s string) (int, error) {
+	b.copyCheck()
+	b.buf = append(b.buf, s...)
+	return len(s), nil
+}
+
