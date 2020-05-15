@@ -60,3 +60,37 @@ func (b *Buffer) Len() int {
 func (b *Buffer) Cap() int {
 	return cap(b.buf)
 }
+
+// keep first n
+func (b *Buffer) Truncate(n int) {
+	if n == 0 {
+		b.Reset()
+		return
+	}
+	b.lastRead = opInvalid
+	if n < 0 || n > len(b.buf) {
+		panic("bytes.Buffer:truncate out off range")
+	}
+	b.buf = b.buf[:b.off + n]
+}
+
+// reset the buff
+func (b *Buffer) Reset() {
+	b.buf = b.buf[:0]
+	b.lastRead = opInvalid
+	b.off = 0
+}
+
+// seems like grow
+func (b *Buffer) tyrGrowByReslice(n int) (int, bool) {
+	if l := len(b.buf); n <= cap(b.buf) - l {
+		b.buf = b.buf[:b.off + l]
+		return l, true
+	}
+	return 0, false
+}
+
+// real grow
+func (b *Buffer) grow(n int) int {
+	
+}
