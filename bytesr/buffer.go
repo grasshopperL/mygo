@@ -90,7 +90,59 @@ func (b *Buffer) tyrGrowByReslice(n int) (int, bool) {
 	return 0, false
 }
 
-// real grow
+// real grow, return index where bytes should be written
 func (b *Buffer) grow(n int) int {
-	
+	m := b.Len()
+	if m == 0 && b.off != 0 {
+		b.Reset()
+	}
+	if i, ok := b.tyrGrowByReslice(n); ok {
+		return i
+	}
+	if b.buf == nil && n <= smallBufferSize {
+		b.buf = make([]byte, n, smallBufferSize)
+		return 0
+	}
+	c := cap(b.buf)
+	if n <= c/2 -m {
+		copy(b.buf, b.buf[:])
+	} else if c > maxInt -c -n {
+		panic(ErrorTooLarge)
+	} else {
+		buf := makeSlice(2 * c + n)
+		copy(buf, b.buf[b.off:])
+		b.buf = buf
+	}
+	b.off = 0
+	b.buf = b.buf[:m + n]
+	return m
+}
+
+// grow
+func (b *Buffer) Grow(n int) {
+	if n < 0 {
+		panic("bytesr.buffer.Grow: negative count")
+	}
+	m := b.grow(n)
+	b.buf = b.buf[:m]
+}
+
+// write appends the content of p to buffer
+func (b *Buffer) Write(p []byte) (n int, err error) {
+	b.lastRead = opInvalid
+	m, ok := b.tyrGrowByReslice(len(p))
+	if !ok {
+		m = b.grow(len(p))
+	}
+	return copy(b.buf[m:], p), nil
+}
+
+//
+func (b *Buffer) WriteString(s string) (n int, err error) {
+	b.lastRead = opInvalid
+	m, ok := b.tyrGrowByReslice(len(s))
+	if !ok {
+		m = b.grow(len(s))
+	}
+	return copy(b.buf[m:], s), nil
 }
