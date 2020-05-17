@@ -7,7 +7,10 @@
 
 package bytesr
 
-import "errors"
+import (
+	"errors"
+	"io"
+)
 
 const smallBufferSize = 64
 
@@ -145,4 +148,36 @@ func (b *Buffer) WriteString(s string) (n int, err error) {
 		m = b.grow(len(s))
 	}
 	return copy(b.buf[m:], s), nil
+}
+
+const MinRead = 512
+
+func (b *Buffer) ReadForm(r io.Reader) (n int64, err error) {
+	b.lastRead = opInvalid
+	for {
+		i := b.grow(MinRead)
+		b.buf = b.buf[:i]
+		m, e := r.Read(b.buf[i:cap(b.buf)])
+		if m < 0 {
+			panic(errNegativeRead)
+		}
+		b.buf = b.buf[:i + m]
+		n += int64(m)
+		if e == io.EOF {
+			return n, nil
+		}
+		if e != nil {
+			return n, e
+		}
+	}
+}
+
+// makeSlice allocates a slice of size n.
+func makeSlice(n int) []byte {
+	defer func() {
+		if recover() != nil {
+			panic(ErrorTooLarge)
+		}
+	}()
+	return make([]byte, n)
 }
