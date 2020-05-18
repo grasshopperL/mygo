@@ -181,3 +181,19 @@ func makeSlice(n int) []byte {
 	}()
 	return make([]byte, n)
 }
+
+// write one byte to buffer
+func (b *Buffer) WriteBuffer(c byte) error {
+	b.lastRead = opInvalid
+	m, ok := b.tyrGrowByReslice(1)
+	if !ok {
+		m = b.grow(1)
+	}
+	b.buf[m] = c
+	return nil
+}
+
+func (b *Buffer) WriteRune(r rune) (n int, err error) {
+
+}
+
