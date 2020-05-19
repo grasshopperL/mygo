@@ -10,6 +10,7 @@ package bytesr
 import (
 	"errors"
 	"io"
+	"unicode/utf8"
 )
 
 const smallBufferSize = 64
@@ -183,7 +184,7 @@ func makeSlice(n int) []byte {
 }
 
 // write one byte to buffer
-func (b *Buffer) WriteBuffer(c byte) error {
+func (b *Buffer) WriteByte(c byte) error {
 	b.lastRead = opInvalid
 	m, ok := b.tyrGrowByReslice(1)
 	if !ok {
@@ -194,6 +195,50 @@ func (b *Buffer) WriteBuffer(c byte) error {
 }
 
 func (b *Buffer) WriteRune(r rune) (n int, err error) {
+	if r < utf8.RuneSelf {
+		b.WriteByte(byte(r))
+		return 1, nil
+	}
+	b.lastRead = opInvalid
+	m, ok := b.tyrGrowByReslice(utf8.UTFMax)
+	if !ok {
+		m = b.grow(utf8.UTFMax)
+	}
+	n = utf8.EncodeRune(b.buf[m:m+utf8.UTFMax], r)
+	b.buf = b.buf[:m+n]
+	return n, nil
+}
 
+// read len(p) or all b.buf
+func (b *Buffer) Read(p []byte) (n int, err error) {
+	b.lastRead = opInvalid
+	if b.empty() {
+		b.Reset()
+		if len(p) == 0 {
+			return 0, nil
+		}
+		return 0, io.EOF
+	}
+	n = copy(p, b.buf[b.off:])
+	b.off += n
+	if n > 0 {
+		b.lastRead = opRead
+	}
+	return n, nil
+}
+
+// the next
+func (b *Buffer) Next(n int) []byte {
+	b.lastRead = opRead
+	m := b.Len()
+	if n > m {
+		n = m
+	}
+	data := b.buf[b.off:b.off + n]
+	b.off += n
+	if n > 0 {
+		b.lastRead = opRead
+	}
+	return data
 }
 
