@@ -242,3 +242,57 @@ func (b *Buffer) Next(n int) []byte {
 	return data
 }
 
+// read one byte from buffer
+func (b *Buffer) ReadByte() (byte, error) {
+	if b.empty() {
+		b.Reset()
+		return 0, io.EOF
+	}
+	c := b.buf[b.off]
+	b.off++
+	b.lastRead = opRead
+	return c, nil
+}
+
+// read rune from buffer
+func (b *Buffer) ReadRune() (r rune, size int, err error) {
+	if b.empty() {
+		b.Reset()
+		return 0, 0, io.EOF
+	}
+	c := b.buf[b.off]
+	if c < utf8.RuneSelf {
+		b.off++
+		b.lastRead = opReadRune1
+		return rune(c), 1, nil
+	}
+	r, n := utf8.DecodeRune(b.buf[b.off:])
+	b.off += n
+	b.lastRead = readOp(n)
+	return r, n, nil
+}
+
+// unread the last rune return by readrune
+func (b *Buffer) UnReadRune() error {
+	if b.lastRead <= opRead {
+		return errors.New("bytesr.buffer.UnReadRune: previous operation is not a successful read operation");
+	}
+	if b.off > int(b.lastRead) {
+		b.off -= int(b.lastRead)
+	}
+	b.lastRead = opInvalid
+	return nil
+}
+
+var errUnreadByte = errors.New("bytes.Buffer: UnreadByte: previous operation was not a successful read")
+
+func (b *Buffer) UnReadByte() error {
+	if b.lastRead == opInvalid {
+		return errUnreadByte
+	}
+	b.lastRead = opInvalid
+	if b.off > 0 {
+		b.off--
+	}
+	return nil
+}
