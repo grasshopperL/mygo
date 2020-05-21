@@ -296,3 +296,24 @@ func (b *Buffer) UnReadByte() error {
 	}
 	return nil
 }
+
+// read line ???
+func (b *Buffer) ReadBytes(delim byte) (line []byte, err error) {
+	slice, err := b.readSlice(delim)
+	line = append(line, slice...)
+	return line, err
+}
+
+// I don't know why 
+func (b *Buffer) readSlice(delim byte) (line []byte, err error) {
+	i := IndexByte(b.buf[b.off:], delim)
+	end := b.off + i + 1
+	if i < 0 {
+		end = len(b.buf)
+		err = io.EOF
+	}
+	line = b.buf[b.off:end]
+	b.off = end
+	b.lastRead = opRead
+	return line, err
+}
