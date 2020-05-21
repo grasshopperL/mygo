@@ -304,7 +304,7 @@ func (b *Buffer) ReadBytes(delim byte) (line []byte, err error) {
 	return line, err
 }
 
-// I don't know why 
+// I don't know why
 func (b *Buffer) readSlice(delim byte) (line []byte, err error) {
 	i := IndexByte(b.buf[b.off:], delim)
 	end := b.off + i + 1
@@ -316,4 +316,22 @@ func (b *Buffer) readSlice(delim byte) (line []byte, err error) {
 	b.off = end
 	b.lastRead = opRead
 	return line, err
+}
+
+// retuen a new buffer init by []byte
+func NewBuffer(buf []byte) *Buffer {
+	return &Buffer{
+		buf:      buf,
+		off:      0,
+		lastRead: 0,
+	}
+}
+
+// return a new buffer init by string
+func NewBufferString(s string) *Buffer {
+	return &Buffer{
+		buf:      []byte(s),
+		off:      0,
+		lastRead: 0,
+	}
 }
