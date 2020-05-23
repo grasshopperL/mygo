@@ -7,7 +7,9 @@
 
 package ior
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	SeekStart   = 0 // seek relative to the origin of the file
@@ -75,5 +77,13 @@ type ReadFrom interface {
 
 type WriteTo interface {
 	WriteTo(w Writer) (n int64, err error)
+}
+
+type ReadAt interface {
+	ReadAt(p []byte, off int64) (n int, err error)
+}
+
+type WriteAt interface {
+	WriteAt(p []byte, off int64) (n int, err error)
 }
 
