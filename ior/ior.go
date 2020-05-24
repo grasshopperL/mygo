@@ -87,3 +87,16 @@ type WriteAt interface {
 	WriteAt(p []byte, off int64) (n int, err error)
 }
 
+type ByteReader interface {
+	ReadByte() (byte, error)
+}
+
+type ReadScanner interface {
+	ByteReader
+	UnreadByte() error
+}
+
+type ByteWriter interface {
+	WriteByte(c byte) error
+}
+
