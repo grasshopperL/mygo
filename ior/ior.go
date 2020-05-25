@@ -100,3 +100,41 @@ type ByteWriter interface {
 	WriteByte(c byte) error
 }
 
+type RuneReader interface {
+	ReadRune() (r rune, size int, err error)
+}
+
+type RuneScanner interface {
+	RuneReader
+	UnreadRune() error
+}
+
+type StringWrite interface {
+	WriteString(s string) (n int, err error)
+}
+
+// write string to writer
+func WriteString(w Writer, s string) (n int, err error) {
+	if sw, ok := w.(StringWrite); ok {
+		return sw.WriteString(s)
+	}
+	return w.Write([]byte(s))
+}
+
+// read at least min bytes
+func ReadAtLeast(r Reader, buf []byte, min int) (n int, err error) {
+	if len(buf) < min {
+		return 0, ErrorShortBuffer
+	}
+	for n < min && err == nil {
+		var nn int
+		nn, err = r.Read(buf[n:])
+		n += nn
+	}
+	if n >= min {
+		err = nil
+	} else if n > 0 && err == EOF {
+		err = ErrUnexpectedEOF
+	}
+	return 
+}
