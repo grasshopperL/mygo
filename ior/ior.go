@@ -9,6 +9,7 @@ package ior
 
 import (
 	"errors"
+	"io"
 )
 
 const (
@@ -137,4 +138,25 @@ func ReadAtLeast(r Reader, buf []byte, min int) (n int, err error) {
 		err = ErrUnexpectedEOF
 	}
 	return 
+}
+
+// read len(buf) from reader to buf
+func ReadFull(r Reader, buf []byte) (n int, err error) {
+	return ReadAtLeast(r, buf, len(buf))
+}
+
+// read n byute from src to dst
+func CopyN(dst Writer, src Reader, n int64) (written int64, err error) {
+	written, err = Copy(dst, LimitReader(src, n))
+	if written == n {
+		return n, nil
+	}
+	if written < n && err == nil {
+		err = EOF
+	}
+	return
+}
+
+func Copy(dst Writer, src Reader) (written int64,err error) {
+	return copyBuffer(dst, src, nil)
 }
