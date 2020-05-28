@@ -9,7 +9,6 @@ package ior
 
 import (
 	"errors"
-	"io"
 )
 
 const (
@@ -177,7 +176,7 @@ func copyBuffer(dst Writer, src Reader, buf []byte) (written int64, err error) {
 	}
 	if buf == nil {
 		size := 32 * 1024
-		if l, ok := src.(*LimitReader); ok && int64(size) > l.N {
+		if l, ok := src.(*LimitedReader); ok && int64(size) > l.N {
 			if l.N < 1 {
 				size = 1
 			} else {
@@ -198,7 +197,7 @@ func copyBuffer(dst Writer, src Reader, buf []byte) (written int64, err error) {
 				break
 			}
 			if nr != nw {
-				err = ErrShortWrite
+				err = ErrorShortWrite
 				break
 			}
 		}
@@ -219,6 +218,44 @@ type LimitedReader struct {
 	N int64 
 }
 
+// why call Reader
 func (l *LimitedReader) Read(p []byte) (n int, err error) {
-	
+	if l.N <= 0 {
+		return 0, EOF
+	}
+	if int64(len(p)) > l.N {
+		p = p[:l.N]
+	}
+	n, err = l.R.Read(p)
+	l.N -= int64(n)
+	return
+}
+
+type SectionReader struct {
+	r ReadAt
+	base int64
+	off int64
+	limit int64
+}
+
+// new section reader
+func NewSectionReader(r ReadAt, off int64, n int64) *SectionReader {
+	return &SectionReader{
+		r:     r,
+		base:  off,
+		off:   off,
+		limit: off + n,
+	}
+}
+
+func (s *SectionReader) Read(p []byte) (n int, err error) {
+	if s.limit <= s.off {
+		return 0, EOF
+	}
+	if max := s.limit - s.off; int64(len(p)) > max {
+		p = p[:max]
+	}
+	n, err = s.r.ReadAt(p, s.off)
+	s.off += int64(n)
+	return
 }
