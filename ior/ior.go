@@ -259,3 +259,48 @@ func (s *SectionReader) Read(p []byte) (n int, err error) {
 	s.off += int64(n)
 	return
 }
+
+var errOffset = errors.New("Seek: invalid set")
+var errWhence = errors.New("Seek: invalid whence")
+
+// seek the position
+func (s *SectionReader) Seek(offset int64, whence int) (int64, error) {
+	switch whence {
+	default:
+		return 0, errWhence
+	case SeekStart:
+		offset += s.base
+	case SeekCurrent:
+		offset += s.off
+	case SeekEnd:
+		offset += s.limit
+	}
+	if offset < s.base {
+		return 0, errOffset
+	}
+	s.off = offset
+	return offset - s.base, nil
+}
+
+// read from one place
+func (s *SectionReader) ReadAt(p []byte, offset int64) (n int, err error) {
+	if offset < 0 || offset > s.limit - s.off {
+		return 0, EOF
+	}
+	offset += s.base
+	if max:= s.limit - offset; max < int64(len(p)) {
+		p = p[:max]
+		n, err = s.r.ReadAt(p, offset)
+		if err == nil {
+			err = EOF
+		}
+		return n, err
+	}
+	return s.r.ReadAt(p, offset)
+}
+
+// the size of section reader
+func (s *SectionReader) Size() int64 {
+	return s.limit - s.base
+}
+
