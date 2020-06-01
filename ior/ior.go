@@ -303,4 +303,26 @@ func (s *SectionReader) ReadAt(p []byte, offset int64) (n int, err error) {
 func (s *SectionReader) Size() int64 {
 	return s.limit - s.base
 }
+ // new teeReader
+func TeeReader(r Reader, w Writer) Reader {
+	return &teeReader{
+		r: r,
+		w: w,
+	}
+}
+
+type teeReader struct {
+	r Reader
+	w Writer
+}
+
+func (t *teeReader) Read(p []byte) (n int, err error) {
+	n, err = t.r.Read(p)
+	if n > 0 {
+		if n, err := t.w.Write(p[:n]); err != nil {
+			return n, err
+		}
+	}
+	return
+}
 
