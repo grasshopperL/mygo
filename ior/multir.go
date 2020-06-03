@@ -44,6 +44,28 @@ func (mr *multiReader) Read(p []byte) (n int, err error) {
 	return 0, EOF
 }
 
+// new multireader
 func MultiReader(readers ...Reader) Reader {
-	
+	r := make([]Reader, len(readers))
+	copy(r, readers)
+	return &multiReader{readers: r}
+}
+
+type multiWriter struct {
+	writers []Writer
+}
+
+// im write 
+func (mt *multiWriter) Write(p []byte) (n int, err error) {
+	for _, w := range mt.writers {
+		n, err = w.Write(p)
+		if err != nil {
+			return
+		}
+		if n != len(p) {
+			err = ErrorShortWrite
+			return
+		}
+	}
+	return len(p), nil
 }
