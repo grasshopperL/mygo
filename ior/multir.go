@@ -55,7 +55,7 @@ type multiWriter struct {
 	writers []Writer
 }
 
-// im write 
+// im write
 func (mt *multiWriter) Write(p []byte) (n int, err error) {
 	for _, w := range mt.writers {
 		n, err = w.Write(p)
@@ -68,4 +68,42 @@ func (mt *multiWriter) Write(p []byte) (n int, err error) {
 		}
 	}
 	return len(p), nil
+}
+
+var _ StringWriter = (*multiWriter)(nil)
+
+// write string
+func (mt *multiWriter) WriteString(s string) (n int, err error) {
+	var p []byte
+	for _, w := range mt.writers {
+		if sw, ok := w.(StringWrite); ok {
+			n, err = sw.WriteString(s)
+		} else {
+			if p == nil {
+				p = []byte(s)
+			}
+			n, err = w.Write(p)
+		}
+		if err == nil {
+			return 
+		}
+		if n != len(s) {
+			err = ErrorShortWrite
+			return
+		}
+	}
+	return len(s), nil
+}
+
+// multi writer 
+func MultiWriter(writes ...Writer) Writer {
+	allWriters := make([]Writer, 0, len(writes))
+	for _, w := range writes {
+		if mw, ok := w.(*multiWriter); ok {
+			allWriters = append(allWriters, mw.writers...)
+		} else {
+			allWriters = append(allWriters, w)
+		}
+	}
+	return &multiWriter{writers: allWriters}
 }
