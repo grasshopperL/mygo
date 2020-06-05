@@ -95,7 +95,7 @@ func (mt *multiWriter) WriteString(s string) (n int, err error) {
 	return len(s), nil
 }
 
-// multi writer 
+// multi writer
 func MultiWriter(writes ...Writer) Writer {
 	allWriters := make([]Writer, 0, len(writes))
 	for _, w := range writes {
