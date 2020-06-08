@@ -73,3 +73,62 @@ func (b *Reader) reset(buf []byte, r io.Reader) *Reader {
 		lastRuneSize: -1,
 	}
 }
+
+// read a chunk to buffer
+// why tried limit times as for
+func (b *Reader) fill() {
+	if b.r > 0 {
+		copy(b.buf, b.buf[b.r:b.w])
+		b.w -= b.r
+		b.r = 0
+	}
+	if b.w >= len(b.buf) {
+		panic("bufior.bufior.fill: tried to write full buffer")
+	}
+	for i := maxConsecutiveEmptyReads; i > 0; i-- {
+		n, err := b.rd.Read(b.buf[b.w:])
+		if n < 0 {
+			panic(ErrNegativeCount)
+		}
+		b.w += n
+		if err != nil {
+			b.err = err
+			return
+		}
+		if n > 0 {
+			return
+		}
+	}
+	b.err = io.ErrNoProgress
+}
+
+// get the read err and why it's will reset the err
+func (b *Reader) readErr() error {
+	err := b.err
+	b.err = nil
+	return err
+}
+
+// peek where can use it
+func (b *Reader) Peek(n int) ([]byte, error) {
+	if n < 0 {
+		return nil, ErrNegativeCount
+	}
+	b.lastRuneSize = -1
+	b.lastByte = -1
+	for b.w - b.r < n && b.w - b.r < len(b.buf) && b.err == nil {
+		b.fill()
+	}
+	if n > len(b.buf) {
+		return b.buf[b.r:b.w], ErrBufferFull
+	}
+	var err error
+	if available := b.w - b.r; available < n {
+		n = available
+		err = b.readErr()
+		if err == nil {
+			err = ErrBufferFull
+		}
+	}
+	return b.buf[b.r:b.r + n], err
+}
