@@ -132,3 +132,31 @@ func (b *Reader) Peek(n int) ([]byte, error) {
 	}
 	return b.buf[b.r:b.r + n], err
 }
+
+func (b *Reader) Discard(n int) (discard int, err error) {
+	if n < 0 {
+		return 0, ErrNegativeCount
+	}
+	if n == 0 {
+		return
+	}
+	remain := n
+	for {
+		skip := b.Buffered()
+		if skip == 0 {
+			b.fill()
+			skip = b.Buffered()
+		}
+		if skip > remain {
+			skip = remain
+		}
+		b.r += skip
+		remain -= skip
+		if remain == 0 {
+			return n, nil
+		}
+		if b.err != nil {
+			return n - remain, b.readErr()
+		}
+	}
+}
