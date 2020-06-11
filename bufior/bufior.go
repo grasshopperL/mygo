@@ -160,3 +160,80 @@ func (b *Reader) Discard(n int) (discard int, err error) {
 		}
 	}
 }
+
+// hwo much can be read again
+func (b *Reader) Buffered() int {
+	return b.w - b.r
+}
+
+func (b *Reader) Read(p []byte) (n int, err error) {
+	n = len(p)
+	if n == 0 {
+		if b.Buffered() > 0 {
+			return 0, nil
+		}
+		return 0, b.readErr()
+	}
+	if b.r == b.w {
+		if b.err != nil {
+			return 0, b.readErr()
+		}
+		if len(p) >= len(b.buf) {
+			n, b.err = b.rd.Read(p) // what's the meaning of like this line of code
+			if n < 0 {
+				panic(ErrNegativeCount)
+			}
+			if n > 0 {
+				b.lastByte = int(p[n - 1])
+				b.lastRuneSize = -1
+			}
+			return n, b.readErr()
+		}
+		b.r = 0
+		b.w = 0
+		n, b.err = b.rd.Read(b.buf)
+		if n < 0 {
+			panic(errNegativeRead)
+		}
+		if n == 0 {
+			return 0, b.readErr()
+		}
+		b.w += n
+	}
+	n = copy(p, b.buf[b.r:b.w])
+	b.r += n
+	b.lastByte = int(b.buf[b.r-1])
+	b.lastRuneSize = -1
+	return n, nil
+}
+
+// read one byte
+func (b *Reader) ReadByte() (byte, error) {
+	b.lastRuneSize = -1
+	for b.r == b.w {
+		if b.readErr() != nil {
+			return 0, b.readErr()
+		}
+		b.fill()
+	}
+	c := b.buf[b.r]
+	b.r++
+	b.lastByte = int(c)
+	return c, nil
+}
+
+// unread one byte
+func (b *Reader) UnReadByte() error {
+	if b.lastByte < 0 || b.w > 0 && b.r == 0 {
+		return ErrInvalidUnreadByte
+	}
+	if b.r > 0 {
+		b.r--
+	} else {
+		b.w = 1
+	}
+	b.buf[b.r] = byte(b.lastByte)
+	b.lastByte = -1
+	b.lastRuneSize = -1
+	return nil
+}
