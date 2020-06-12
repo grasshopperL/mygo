@@ -10,6 +10,7 @@ package bufior
 import (
 	"errors"
 	"io"
+	"unicode/utf8"
 )
 
 const defaultBufSize = 4096
@@ -233,6 +234,36 @@ func (b *Reader) UnReadByte() error {
 		b.w = 1
 	}
 	b.buf[b.r] = byte(b.lastByte)
+	b.lastByte = -1
+	b.lastRuneSize = -1
+	return nil
+}
+
+// read rune and it's too difficult to understand
+func (b *Reader) ReadRune() (r rune, size int, err error) {
+	for b.r + utf8.UTFMax > b.w && !utf8.FullRune(b.buf[b.r:b.w]) && b.err == nil && b.w-b.r < len(b.buf) {
+		b.fill()
+	}
+	b.lastRuneSize = -1
+	if b.r == b.w {
+		return 0, 0, b.readErr()
+	}
+	r, size = rune(b.buf[b.r]), 1
+	if r >= utf8.RuneSelf {
+		r, size = utf8.DecodeRune(b.buf[b.r:b.w])
+	}
+	b.r += size
+	b.lastByte = int(b.buf[b.r-1])
+	b.lastRuneSize = size
+	return r, size, nil
+}
+
+// unread a rune
+func (b *Reader) UnreadRune() error {
+	if b.lastRuneSize < 0 || b.r < b.lastRuneSize {
+		return ErrInvalidUnreadRune
+	}
+	b.r -= b.lastRuneSize
 	b.lastByte = -1
 	b.lastRuneSize = -1
 	return nil
