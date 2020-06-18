@@ -308,6 +308,7 @@ func (b *Reader) ReadSlice(delim byte) (line []byte, err error) {
 	return
 }
 
+// difficult 
 func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error) {
 	line, err = b.ReadSlice('\n')
 	if err == ErrBufferFull {
@@ -335,5 +336,27 @@ func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error) {
 		}
 		line = line[:len(line)-drop]
 	}
+	return
+}
+
+// difficult
+func (b *Reader) collectFragments(delim byte) (fullBuffers [][]byte, finalFragment []byte, totalLen int, err error) {
+	var frag []byte
+	for {
+		var e error
+		frag, e = b.ReadSlice(delim)
+		if e == nil {
+			break
+		}
+		if e != ErrBufferFull {
+			err = e
+			break
+		}
+		buf := make([]byte, len(frag))
+		copy(buf, frag)
+		fullBuffers = append(fullBuffers, buf)
+		totalLen += len(buf)
+	}
+	totalLen += len(frag)
 	return
 }
