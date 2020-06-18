@@ -307,3 +307,33 @@ func (b *Reader) ReadSlice(delim byte) (line []byte, err error) {
 
 	return
 }
+
+func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error) {
+	line, err = b.ReadSlice('\n')
+	if err == ErrBufferFull {
+		if len(line) > 0 && line[len(line)-1] == '\r' {
+			if b.r == 0 {
+				panic("bufio: tried to rewind past start of buffer")
+			}
+			b.r--
+			line = line[:len(line)-1]
+		}
+		return line, true, nil
+	}
+	if len(line) == 0 {
+		if err != nil {
+			line = nil
+		}
+		return
+	}
+	err = nil
+
+	if line[len(line)-1] == '\n' {
+		drop := 1
+		if len(line) > 1 && line[len(line)-2] == '\r' {
+			drop = 2
+		}
+		line = line[:len(line)-drop]
+	}
+	return
+}
