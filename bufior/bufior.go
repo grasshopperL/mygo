@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"math"
 	"unicode/utf8"
 )
 
@@ -308,7 +309,7 @@ func (b *Reader) ReadSlice(delim byte) (line []byte, err error) {
 	return
 }
 
-// difficult 
+// difficult
 func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error) {
 	line, err = b.ReadSlice('\n')
 	if err == ErrBufferFull {
@@ -359,4 +360,15 @@ func (b *Reader) collectFragments(delim byte) (fullBuffers [][]byte, finalFragme
 	}
 	totalLen += len(frag)
 	return
+}
+
+func (b *Reader) ReadBytes(delim byte) ([]byte, error) {
+	full, frag, n, err := b.collectFragments(delim)
+	buf := make([]byte, n)
+	n = 0
+	for i := range full {
+		n += copy(buf[n:], full[i])
+	}
+	copy(buf[n:], frag)
+	return buf, err
 }
