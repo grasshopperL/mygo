@@ -372,3 +372,58 @@ func (b *Reader) ReadBytes(delim byte) ([]byte, error) {
 	copy(buf[n:], frag)
 	return buf, err
 }
+
+type ListNode struct {
+	Next *ListNode
+	Val int
+}
+func splitListToParts(root *ListNode, k int) []*ListNode {
+	cur := root
+	l := 0
+	for cur != nil {
+		l++
+		cur = cur.Next
+	}
+	res := make([]*ListNode, k)
+	extra := l % k
+	i := 0
+	for {
+		res[i] = root
+		i++
+		if i == k {
+			break
+		}
+		gap := l / k
+		if i < extra {
+			gap++
+			extra--
+		}
+		for root != nil && gap > 1 {
+			root = root.Next
+			gap--
+		}
+		if root == nil {
+			break
+		}
+	}
+	return res
+}
+
+func isValid(s string) bool {
+	if len(s) == 0 {
+		return true
+	}
+	stack := make([]rune, 0)
+	for _, v := range s {
+		if (v == '[') || (v == '(') || (v == '{') {
+			stack = append(stack, v)
+		} else if ((v == ']') && len(stack) > 0 && stack[len(stack)-1] == '[') ||
+			((v == ')') && len(stack) > 0 && stack[len(stack)-1] == '(') ||
+			((v == '}') && len(stack) > 0 && stack[len(stack)-1] == '{') {
+			stack = stack[:len(stack)-1]
+		} else {
+			return false
+		}
+	}
+	return len(stack) == 0
+}
