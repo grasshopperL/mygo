@@ -60,3 +60,45 @@ func (l *List) Back() *Element {
 	}
 	return l.root.pre
 }
+
+func (l *List) lazyInit() {
+	if l.root.next == nil {
+		l.Init()
+	}
+}
+
+func (l *List) insert(e, at *Element) *Element {
+	e.pre = at
+	e.next = at.next
+	e.pre.next = e
+	e.next.pre = e
+	e.list = l
+	l.len++
+	return e
+}
+
+func (l *List) insertValue(v interface{}, at *Element) *Element {
+	return l.insert(&Element{
+		next:  nil,
+		pre:   nil,
+		list:  nil,
+		Value: v,
+	}, at)
+}
+
+func (l *List) remove(e *Element) *Element {
+	e.pre.next = e.next
+	e.next.pre = e.pre
+	l.len--
+	e.list = nil
+	return e
+}
+
+// move e to after at
+//func (l *List) move(e, at *Element) *Element {
+//	if e == at {
+//		return e
+//	}
+//	e.pre.next = at
+//
+//}
