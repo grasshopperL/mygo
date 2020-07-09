@@ -94,11 +94,35 @@ func (l *List) remove(e *Element) *Element {
 	return e
 }
 
-// move e to after at
-//func (l *List) move(e, at *Element) *Element {
-//	if e == at {
-//		return e
-//	}
-//	e.pre.next = at
-//
-//}
+//move e to after at
+func (l *List) move(e, at *Element) *Element {
+	if e == at {
+		return e
+	}
+	e.pre.next = e.next
+	e.next.pre = e.pre
+	e.pre = at
+	e.next = at.next
+	e.pre.next = e
+	e.next.pre = e
+	return e
+}
+
+// remove e from l if e is an element of list l
+// return e.value if not
+func (l *List) Remove(e *Element) interface{} {
+	if e.list == l {
+		return l.remove(e)
+	}
+	return e.Value
+}
+
+func (l *List) PushBack(v interface{}) *Element {
+	l.lazyInit()
+	return l.insertValue(v, l.root.pre)
+}
+
+func (l *List) PushFront(v interface{}) *Element {
+	l.lazyInit()
+	return l.insertValue(v, &l.root)
+}
