@@ -126,3 +126,49 @@ func (l *List) PushFront(v interface{}) *Element {
 	l.lazyInit()
 	return l.insertValue(v, &l.root)
 }
+
+func (l *List) InsertBefore(v interface{}, mark *Element) *Element {
+	if mark.list != l {
+		return nil
+	}
+	return l.insertValue(v, mark.pre)
+}
+
+func (l *List) InsertAfter(v interface{}, mark *Element) *Element {
+	if mark.list != l {
+		return nil
+	}
+	return l.insertValue(v, mark)
+}
+
+func (l *List) MoveToFront(e *Element) {
+	if e.list != l || l.root.next == e {
+		return
+	}
+	l.move(e, &l.root)
+}
+
+func (l *List) MoveToBack(e *Element) {
+	if e.list != l || l.root.pre == e {
+		return
+	}
+	l.move(e, l.root.pre)
+}
+
+func (l *List) MoveBefore(e, mark *Element) {
+	if e.list != l || e == mark || mark.list != l {
+		return
+	}
+	l.move(e, mark.pre)
+}
+
+func (l *List) MoveAfter(e, mark *Element) {
+	if e.list != l || e == mark || mark.list != l {
+		return
+	}
+	l.move(e, mark)
+}
+
+//func (l *List) PushBackList(other *List) {
+//
+//}
