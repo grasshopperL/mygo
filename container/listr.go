@@ -169,6 +169,16 @@ func (l *List) MoveAfter(e, mark *Element) {
 	l.move(e, mark)
 }
 
-//func (l *List) PushBackList(other *List) {
-//
-//}
+func (l *List) PushBackList(other *List) {
+	l.lazyInit()
+	for i, e := other.Len(), other.Front(); i > 0; i, e = i -1, e.Next() {
+		l.insertValue(e.Value, l.root.pre)
+	}
+}
+
+func (l *List) PushFrontList(other *List) {
+	l.lazyInit()
+	for i, e := other.Len(), other.Back() ; i > 0; i, e = i - 1, e.Prev() {
+		l.insertValue(e.Value, &l.root)
+	}
+}
