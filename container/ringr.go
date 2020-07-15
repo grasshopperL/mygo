@@ -67,3 +67,22 @@ func New(n int) *Ring {
 	r.prev = p
 	return r
 }
+
+func (r *Ring) Link(s *Ring) *Ring {
+	n := r.Next()
+	if s != nil {
+		p := s.Prev()
+		r.next = s
+		s.prev = r
+		n.prev = p
+		p.next = n
+	}
+	return n
+}
+
+func (r *Ring) Unlink(n int) *Ring {
+	if n <= 0 {
+		return nil
+	}
+	return r.Link(r.Move(n + 1))
+}
