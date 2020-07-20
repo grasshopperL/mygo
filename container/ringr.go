@@ -86,3 +86,23 @@ func (r *Ring) Unlink(n int) *Ring {
 	}
 	return r.Link(r.Move(n + 1))
 }
+
+func (r *Ring) Len() int {
+	n := 0
+	if r != nil {
+		n = 1
+		for p := r.Next(); p != r; p = p.next {
+			n++
+		}
+	}
+	return n
+}
+
+func (r *Ring) Do(f func(interface{})) {
+	if r != nil {
+		f(r.Value)
+		for p := r.Next(); p != r; p = p.next {
+			f(p.Value)
+		}
+	}
+}
