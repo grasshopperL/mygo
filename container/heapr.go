@@ -22,3 +22,14 @@ func Init(h Interface) {
 	}
 }
 
+func Push(h Interface, x interface{}) {
+	h.Push(x)
+	up(h, h.Len() - 1)
+}
+
+func Pop(h Interface) interface{} {
+	n := h.Len() - 1
+	h.Swap(0, n)
+	down(h, 0, n)
+	return h.Pop()
+}
