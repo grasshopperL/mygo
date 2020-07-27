@@ -33,3 +33,14 @@ func Pop(h Interface) interface{} {
 	down(h, 0, n)
 	return h.Pop()
 }
+
+func Remove(h Interface, i int) interface{} {
+	n := h.Len() - 1
+	if n != i {
+		h.Swap(i, n)
+		if !down(h, i, n) {
+			up(h, i)
+		}
+	}
+	return h.Pop()
+}
