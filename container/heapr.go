@@ -44,3 +44,9 @@ func Remove(h Interface, i int) interface{} {
 	}
 	return h.Pop()
 }
+
+func Fix(h Interface, i int) {
+	if !down(h, i, h.Len()) {
+		up(h, i)
+	}
+}
