@@ -50,3 +50,14 @@ func Fix(h Interface, i int) {
 		up(h, i)
 	}
 }
+
+func up(h Interface, j int) {
+	for {
+		i := (j - 1) / 2
+		if i == j || !h.Less(j, i) {
+			break
+		}
+		h.Swap(i, j)
+		j = i
+	}
+}
