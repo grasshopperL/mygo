@@ -61,3 +61,23 @@ func up(h Interface, j int) {
 		j = i
 	}
 }
+
+func down(h Interface, i0, n int) bool {
+	i := i0
+	for {
+		j1 := 2*i + 1
+		if j1 >= n || j1 < 0 {
+			break
+		}
+		j := j1
+		if j2 := j1 + 1; j2 < n && h.Less(j2, j1) {
+			j = j2
+		}
+		if h.Less(j, i) {
+			break
+		}
+		h.Swap(i, j)
+		i = j
+	}
+	return i > i0
+}
