@@ -7,6 +7,8 @@
 
 package container
 
+import "container/heap"
+
 type Item struct {
 	value string
 	priority int
@@ -44,4 +46,10 @@ func (pq *PriorityQueue) Pop() interface{} {
 	item.index = -1
 	*pq = old[: n-1]
 	return item
+}
+
+func (pq *PriorityQueue) update(item *Item, value string, priority int) {
+	item.value = value
+	item.priority = priority
+	heap.Fix(pq, item.index)
 }
