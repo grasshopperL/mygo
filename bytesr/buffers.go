@@ -67,3 +67,8 @@ func (b *Buffer) Truncate(n int) {
 	b.buf = b.buf[:b.off+n]
 }
 
+func (b *Buffer) Reset() {
+	b.buf = b.buf[:0]
+	b.off = 0
+	b.lastRead = opInvalid
+}
