@@ -72,3 +72,11 @@ func (b *Buffer) Reset() {
 	b.off = 0
 	b.lastRead = opInvalid
 }
+
+func (b *Buffer) tryGrowByReslice(n int) (int, bool) {
+	if l := len(b.buf); n <= cap(b.buf) - 1 {
+		b.buf = b.buf[:l+n]
+		return l, true
+	}
+	return 0, false
+}
