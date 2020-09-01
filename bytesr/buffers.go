@@ -7,7 +7,11 @@
 
 package bytesr
 
-import "errors"
+import (
+	"debug/macho"
+	"errors"
+	"unicode"
+)
 
 const smallBufferSize = 64
 
@@ -79,4 +83,31 @@ func (b *Buffer) tryGrowByReslice(n int) (int, bool) {
 		return l, true
 	}
 	return 0, false
+}
+
+func (b *Buffer) grow(n int) int {
+	m := b.Len()
+	if m == 0 && b.off != 0 {
+		b.Reset()
+	}
+	if i, ok := b.tryGrowByReslice(n); ok {
+		return i
+	}
+	if b.buf == nil && n <= smallBufferSize {
+		b.buf = make([]byte, n, smallBufferSize)
+		return 0
+	}
+	c := cap(b.buf)
+	if n <= c / 2 - m {
+		copy(b.buf, b.buf[b.off:])
+	} else if c > maxInt - c - n {
+		panic(ErrTooLarge)
+	} else {
+		buf := makeSlice(2 * c + n)
+		copy(buf, b.buf[b.off:])
+		b.buf = buf
+	}
+	b.off = 0
+	b.buf = b.buf[:m + n]
+	return m
 }
