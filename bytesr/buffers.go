@@ -111,3 +111,29 @@ func (b *Buffer) grow(n int) int {
 	b.buf = b.buf[:m + n]
 	return m
 }
+
+func (b *Buffer) Grow(n int) {
+	if n < 0 {
+		panic("bytesr.Buffer.Grow: negative count")
+	}
+	m := b.grow(n)
+	b.buf = b.buf[:m]
+}
+
+func (b *Buffer) Write(p []byte) (n int, err error) {
+	b.lastRead = opInvalid
+	m, ok := b.tryGrowByReslice(len(p))
+	if !ok {
+		m = b.grow(len(p))
+	}
+	return copy(b.buf[m:], p), nil
+}
+
+func (b *Buffer) WriteString(s string) (n int, err error) {
+	b.lastRead = opInvalid
+	m, ok := b.tryGrowByReslice(len(s))
+	if !ok {
+		m = b.grow(len(s))
+	}
+	return copy(b.buf[m:], s), nil
+}
