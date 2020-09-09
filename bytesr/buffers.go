@@ -167,3 +167,33 @@ func makeSlice(n int) []byte {
 	}()
 	return make([]byte, n)
 }
+
+func (b *Buffer) WriteTo(w io.Writer) (n int64, err error) {
+	b.lastRead = opInvalid
+	if nBytes := b.Len(); nBytes > 0 {
+		m, e := w.Write(b.buf[b.off:])
+		if m > nBytes {
+			panic("bytesr.buffers.WriteTo: invalid Write count")
+		}
+		b.off += m
+		n = int64(m)
+		if e != nil {
+			return n, e
+		}
+		if m != nBytes {
+			return n, io.ErrShortWrite
+		}
+	}
+	b.Reset()
+	return n, nil
+}
+
+func (b *Buffer) WriteByte(c byte) error {
+	b.lastRead = opInvalid
+	m, ok := b.tryGrowByReslice(1)
+	if !ok {
+		m = b.grow(1)
+	}
+	b.buf[m] = c
+	return nil
+}
