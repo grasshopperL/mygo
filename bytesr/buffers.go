@@ -10,6 +10,7 @@ package bytesr
 import (
 	"errors"
 	"io"
+	"unicode/utf8"
 )
 
 const smallBufferSize = 64
@@ -196,4 +197,36 @@ func (b *Buffer) WriteByte(c byte) error {
 	}
 	b.buf[m] = c
 	return nil
+}
+
+func (b *Buffer) WriteRune(r rune) (n int, err error) {
+	if r < utf8.RuneSelf {
+		_ = b.WriteByte(byte(r))
+		return 1, nil
+	}
+	b.lastRead = opInvalid
+	m, ok := b.tryGrowByReslice(utf8.UTFMax)
+	if !ok {
+		m = b.grow(utf8.UTFMax)
+	}
+	n = utf8.EncodeRune(b.buf[m:m+utf8.UTFMax], r)
+	b.buf = b.buf[:m+n]
+	return n, nil
+}
+
+func (b *Buffer) Read(p []byte) (n int, err error) {
+	b.lastRead = opInvalid
+	if b.empty() {
+		b.Reset()
+		if len(p) == 0 {
+			return 0, nil
+		}
+		return 0, io.EOF
+	}
+	n = copy(p, b.buf[b.off:])
+	b.off += n
+	if n > 0 {
+		b.lastRead = opRead
+	}
+	return n, nil
 }
