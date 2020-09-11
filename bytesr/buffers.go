@@ -230,3 +230,17 @@ func (b *Buffer) Read(p []byte) (n int, err error) {
 	}
 	return n, nil
 }
+
+func (b *Buffer) Next(n int) []byte {
+	b.lastRead = opRead
+	m := b.Len()
+	if n > m {
+		n = m
+	}
+	data := b.buf[b.off:b.off+n]
+	b.off += n
+	if n > 0 {
+		b.lastRead = opRead
+	}
+	return data
+}
