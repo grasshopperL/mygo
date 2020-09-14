@@ -244,3 +244,31 @@ func (b *Buffer) Next(n int) []byte {
 	}
 	return data
 }
+
+func (b *Buffer) ReadByte() (byte, error) {
+	if b.empty() {
+		b.Reset()
+		return 0, io.EOF
+	}
+	c := b.buf[b.off]
+	b.off++
+	b.lastRead = opRead
+	return c, nil
+}
+
+func (b *Buffer) ReadRune() (r rune, size int, err error) {
+	if b.empty() {
+		b.Reset()
+		return 0,0, io.EOF
+	}
+	c := b.buf[b.off]
+	if c < utf8.RuneSelf {
+		b.off++
+		b.lastRead = opReadRune1
+		return rune(c), 1, nil
+	}
+	r, n := utf8.DecodeRune(b.buf[b.off:])
+	b.off += n
+	b.lastRead = readOp(n)
+	return r, n, nil
+}
