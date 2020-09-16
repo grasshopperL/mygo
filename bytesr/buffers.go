@@ -272,3 +272,27 @@ func (b *Buffer) ReadRune() (r rune, size int, err error) {
 	b.lastRead = readOp(n)
 	return r, n, nil
 }
+
+var errUnreadByte = errors.New("bytes.Buffer: UnreadByte: previous operation was not a successful read")
+
+func (b *Buffer) UnreadRune() error {
+	if b.lastRead <= opInvalid {
+		return errors.New("bytes.Buffer: UnreadRune: previous operation was not a successful ReadRune")
+	}
+	if b.off >= int(b.lastRead) {
+		b.off -= int(b.lastRead)
+	}
+	b.lastRead = opInvalid
+	return nil
+}
+
+func (b *Buffer) UnreadByte() error {
+	if b.lastRead == opInvalid {
+		return errUnreadByte
+	}
+	if b.off > 0 {
+		b.off--
+	}
+	b.lastRead = opInvalid
+	return nil
+}
