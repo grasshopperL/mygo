@@ -296,3 +296,22 @@ func (b *Buffer) UnreadByte() error {
 	b.lastRead = opInvalid
 	return nil
 }
+
+func (b *Buffer) ReadBytes(delim byte) (line []byte, err error) {
+	slice, err := b.readSlice(delim)
+	line = append(line, slice...)
+	return line, err
+}
+
+func (b *Buffer) readSlice(delim byte) (line []byte, err error) {
+	i := Indexbyte(b.buf[b.off:], delim)
+	end := b.off + i + 1
+	if i < 0 {
+		end = len(b.buf)
+		err = io.EOF
+	}
+	line = b.buf[b.off:end]
+	b.off = end
+	b.lastRead = opRead
+	return line, err
+}
