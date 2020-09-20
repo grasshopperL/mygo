@@ -8,6 +8,7 @@
 package bytesr
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"unicode/utf8"
@@ -314,4 +315,9 @@ func (b *Buffer) readSlice(delim byte) (line []byte, err error) {
 	b.off = end
 	b.lastRead = opRead
 	return line, err
+}
+
+func (b *Buffer) ReadString(delim byte) (line string, err error) {
+	slice, err := b.readSlice(delim)
+	return string(slice), err
 }
