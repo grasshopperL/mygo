@@ -321,3 +321,20 @@ func (b *Buffer) ReadString(delim byte) (line string, err error) {
 	slice, err := b.readSlice(delim)
 	return string(slice), err
 }
+
+func NewBuffer(buf []byte) *Buffer {
+	return &Buffer{
+		buf:      buf,
+		off:      0,
+		lastRead: 0,
+	}
+}
+
+func NewBufferString(s string) *Buffer {
+	return &Buffer{
+		buf:      []byte(s),
+		off:      0,
+		lastRead: 0,
+	}
+}
+
