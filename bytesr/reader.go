@@ -10,12 +10,13 @@ package bytesr
 import (
 	"errors"
 	"io"
+	"unicode/utf8"
 )
 
 type Reader struct {
 	s []byte
 	i int64
-	preVRune int
+	prevRune int
 }
 
 func (r *Reader) Len() int {
@@ -51,4 +52,38 @@ func (r *Reader) ReadAt(b []byte, off int64) (n int, err error) {
 		err = io.EOF
 	}
 	return 
+}
+
+func (r *Reader) ReadByte() (byte, error) {
+	r.prevRune = -1
+	if r.i >= int64(len(r.s)) {
+		return 0, io.EOF
+	}
+	b := r.s[r.i]
+	r.i++
+	return b, nil
+}
+
+func (r *Reader) UnReadByte() error {
+	if r.i < 0 {
+		return errors.New("bytesr.Reader.UnReadByte: at beginning of slice")
+	}
+	r.prevRune = -1
+	r.i--
+	return nil
+}
+
+func (r *Reader) ReadRune() (ch rune, size int, err error) {
+	if r.i > int64(len(r.s)) {
+		r.prevRune = -1
+		return 0, 0, io.EOF
+	}
+	r.prevRune = int(r.i)
+	if c := r.s[r.i]; c < utf8.RuneSelf {
+		r.i++
+		return rune(c), 1, nil
+	}
+	ch, size = utf8.DecodeRune(r.s[r.i:])
+	r.i += int64(size)
+	return
 }
