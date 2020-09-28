@@ -87,3 +87,15 @@ func (r *Reader) ReadRune() (ch rune, size int, err error) {
 	r.i += int64(size)
 	return
 }
+
+func UnreadRune(r *Reader) error {
+	if r.i <= 0 {
+		return errors.New("bytes.Reader.UnreadRune: at beginning of slice")
+	}
+	if r.prevRune < 0 {
+		return errors.New("bytes.Reader.UnreadRune: previous operation was not ReadRune")
+	}
+	r.i = int64(r.prevRune)
+	r.prevRune = -1
+	return nil
+}
